@@ -5,9 +5,7 @@ html {
 }
 
 body {
-  background-image: url('../images/pizza-bg.jpg');
   background-attachment: fixed;
-  background-color: blue;
 }
 
 
@@ -42,20 +40,28 @@ section {
   height: 100%;
 }
 
-section:before {
-  content: "";
-  background-color: white;
-  opacity: 0.4;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  display: block;
-  position: absolute;
-
-}
 
 section h1 {
   padding: 10px;
+}
+
+
+
+section#home:before {
+  content: " ";
+  display: block;
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background-image: url('../images/pizza-bg.jpg')
+}
+
+section#home p {
+  font-size: 36px;
+  background-color: white;
+  padding: 20px;
+  text-align: center;
 }
 
 section#menu table {
