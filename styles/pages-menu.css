@@ -1,6 +1,7 @@
 section#menu table {
   margin: 0 auto;
   background-color: bisque;
+  overflow-y: scroll;
 
 }
 
