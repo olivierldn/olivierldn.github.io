@@ -1,6 +1,32 @@
-section#contact-us {
+section#contact-us form {
+  max-width: 450px;
 }
 
-section#contact-us label{
+section#contact-us label, input{
   font-size: 24px;
+  
+  font-weight: normal;
+  
+}
+
+section#contact-us fieldset,
+section#contact-us textarea {
+  text-align: left;
+  margin-bottom: 20px;
+  min-width: 220px;
+  display: block;
+}
+
+section#contact-us fieldset input,
+section#contact-us fieldset textarea {
+  margin: 0;
+  display: block;
+  width: 100%;
+}
+
+section#contact-us label {
+  text-transform: capitalize;
+  margin-bottom: 10px;
+  text-align: left;
+  display: inline-block;
 }

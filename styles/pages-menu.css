@@ -3,6 +3,7 @@ section#menu table {
   background-color: bisque;
   overflow-y: scroll;
 
+  width: 100%;
 }
 
 section#menu table td {
