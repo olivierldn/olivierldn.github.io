@@ -1,7 +1,7 @@
 section#menu table {
   margin: 0 auto;
   background-color: bisque;
-
+  width: 100%;
 }
 
 section#menu table td {
