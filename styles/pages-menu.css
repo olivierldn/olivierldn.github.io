@@ -1,0 +1,10 @@
+section#menu table {
+  margin: 0 auto;
+  background-color: bisque;
+
+}
+
+section#menu table td {
+  padding: 10px;
+  border: 2px solid rgb(250, 202, 143,.5);
+}

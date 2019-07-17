@@ -1,0 +1,45 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-attachment: fixed;
+}
+
+
+h1 {
+  color: white;
+  background-color: red;
+  font-size: 24px;
+}
+
+ul li {
+  display: inline-block;
+}
+
+nav {
+  display: block;
+  text-align: center;
+  float: left;
+  margin-left: 5%;
+}
+
+nav ul{
+  display: block;
+}
+
+nav li a {
+  background-color: white;
+  padding: 10px;
+  display: block;
+}
+
+section {
+  width: 100%;
+  height: 100%;
+}
+
+
+section h1 {
+  padding: 10px;
+}
