@@ -10,10 +10,9 @@ body {
 
 
 h1 {
-  color: rgb(238, 24, 24);
-  background-color: blue;
+  color: white;
+  background-color: red;
   font-size: 24px;
-  
 }
 
 ul li {
@@ -23,6 +22,8 @@ ul li {
 nav {
   display: block;
   text-align: center;
+  float: left;
+  margin-left: 5%;
 }
 
 nav ul{
@@ -60,8 +61,13 @@ section#home:before {
 section#home p {
   font-size: 36px;
   background-color: white;
+  clear: left;
   padding: 20px;
   text-align: center;
+  display: block;
+  float: left;
+  margin-left: 5%;
+  margin-right: 5%;
 }
 
 section#menu table {
