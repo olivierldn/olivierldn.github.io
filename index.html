@@ -1,151 +1,606 @@
-<html>
-  <head>
-    <link rel='stylesheet' href='./styles/main.css' type='text/css' media='all' />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Oliwier Rynkiewicz Tattoo | Portfolio</title>
 
-    <header>
+  <style>
+    /* Smooth scroll + header offset */
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+    :root{ --header-h: 64px; }
+    @media (min-width:640px){ :root{ --header-h: 72px; } }
+    #about,#portfolio,#testimonials,#book { scroll-margin-top: var(--header-h); }
 
-    </header>
+    /* ==== Fixed AMBER theme ==== */
+    :root{
+      --paper:#f8f7f5;
+      --ink:#0b1220;
+      --muted:#5b677a;
+      --line:#e8e6e2;
 
-    <section id="home">
-      <h1>PIZZA LONDON</h1>
+      --accent:#b45309;      /* amber-700 */
+      --accent-2:#f59e0b;    /* amber-500 */
+      --on-accent:#2a1703;
 
-      <nav>
-        <ul>
-          <li><a href="#about">About</a></li>
-          <li><a href="#menu">Menu</a></li>
-          <li><a href="#contact-us">Contact us</a></li>
-          <li><a href="#find-us">Find us</a></li>
-        </ul>
+      --dark:#0b0f16;
+      --dark-ink:#eef2f6;
+      --dark-muted:#c7d0dc;
+
+      --tint:245,158,11;     /* amber-500 for glows */
+    }
+
+    html,body{height:100%;}
+    body{ background:var(--paper); color:var(--ink); text-rendering:optimizeLegibility; }
+    .paper{
+      background:
+        radial-gradient(1000px 600px at 85% -10%, rgba(var(--tint),.06), transparent 60%),
+        radial-gradient(900px 600px at 10% 0%, rgba(var(--tint),.05), transparent 55%),
+        var(--paper);
+    }
+    .card{
+      background:#fff; border:1px solid var(--line); border-radius:18px;
+      box-shadow:0 20px 60px rgba(0,0,0,.05);
+    }
+    .chip{
+      display:inline-flex; align-items:center; gap:.5rem;
+      border:1px solid var(--line); background:#fff; color:var(--muted);
+      border-radius:999px; padding:.4rem .75rem; font-size:.8rem;
+    }
+    .btn-accent{
+      background:var(--accent-2); color:var(--on-accent);
+      border:1px solid rgba(var(--tint),.45);
+    }
+    .btn-accent:hover{ background:#f7a41b; } /* slightly brighter */
+    .btn-ghost-dark{
+      background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.12);
+    }
+    .btn-ghost-dark:hover{ background:rgba(255,255,255,.12); }
+
+    /* Header */
+    .glass-dark{
+      backdrop-filter: blur(10px);
+      background: rgba(15,23,42,.84);
+      border-bottom:1px solid rgba(148,163,184,.18);
+      color:var(--dark-ink);
+    }
+    .glass-dark .nav-link{ position:relative; color:var(--dark-ink); }
+    .glass-dark .nav-link::after{
+      content:""; position:absolute; left:0; right:0; bottom:-6px; height:2px; width:0;
+      background:linear-gradient(90deg,var(--accent-2),transparent);
+      transition:width .22s ease;
+    }
+    .glass-dark .nav-link:hover::after, .glass-dark .nav-link:focus-visible::after{ width:100%; }
+
+    /* HERO with visible rotating background */
+    .hero{
+      position:relative; isolation:isolate; overflow:hidden;
+      background:var(--dark); color:var(--dark-ink);
+      border-bottom:1px solid rgba(148,163,184,.14);
+      touch-action: pan-y; /* allow horizontal swipes */
+    }
+    .hero-overlay{
+      position:absolute; inset:0; z-index:1;
+      background:
+        radial-gradient(1200px 600px at 85% 20%, rgba(var(--tint),.22), transparent 60%),
+        linear-gradient(180deg, rgba(11,15,22,.25) 0%, rgba(11,15,22,.50) 55%, rgba(11,15,22,.70) 100%);
+      pointer-events:none;
+    }
+    .hero-vignette{
+      position:absolute; inset:0; z-index:2; pointer-events:none;
+      box-shadow: inset 0 0 220px rgba(0,0,0,.55);
+    }
+    .hero-slides{ position:absolute; inset:0; z-index:0; }
+    .hero-slide{
+      position:absolute; inset:0; background-position:center; background-size:cover;
+      opacity:0; transition:opacity .9s ease; will-change:opacity;
+    }
+    .hero-slide.active{ opacity:1; }
+    .hero-content{ position:relative; z-index:3; }
+
+    /* Thumbs */
+    .thumb{ border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#f3f1ed;
+            transition:transform .2s ease, box-shadow .2s ease; }
+    .thumb:hover{ transform:translateY(-2px); box-shadow:0 16px 40px rgba(0,0,0,.06); }
+    .thumb:focus-visible{ outline:3px solid rgba(var(--tint),.35); outline-offset:3px; }
+    .thumb img{ width:100%; height:100%; object-fit:cover;
+                transition:filter .35s ease, transform .35s ease, opacity .35s ease; }
+    .thumb .lqip{ filter:blur(14px); transform:scale(1.05); }
+    .thumb .loaded{ filter:none; transform:none; }
+
+    /* Lightbox */
+    .lightbox{ display:none; position:fixed; inset:0; z-index:50;
+               background:rgba(6,8,10,.92); justify-content:center; align-items:center;
+               padding:clamp(12px,3vw,24px); }
+    .lightbox.open{ display:flex; }
+    .lightbox-img-wrap{ position:relative; max-width:min(92vw,1400px); max-height:82vh; }
+    .lightbox-img{ display:block; max-width:100%; max-height:82vh; object-fit:contain;
+                   border-radius:16px; background:#111; box-shadow:0 24px 80px rgba(0,0,0,.6);
+                   transition:filter .4s ease, transform .25s ease; }
+    .lb-blur{ filter:blur(12px) saturate(110%); }
+    .lb-btn{
+      position:absolute; top:50%; transform:translateY(-50%);
+      color:#fff; font-size:28px; padding:.6rem .8rem; border-radius:999px;
+      background:rgba(0,0,0,.35); backdrop-filter:blur(6px);
+      transition:transform .15s ease, opacity .15s ease, background .2s ease; opacity:.9;
+    }
+    .lb-btn:hover{ opacity:1; background:rgba(0,0,0,.5); transform:translateY(-50%) scale(1.05); }
+    .lb-prev{ left:8px; z-index: 1 } .lb-next{ right:8px; } .lb-close{ top:10px; right:10px; transform:none; font-size:24px; }
+
+    /* FAB */
+    .wa-fab{ position:fixed; right:18px; bottom:18px; z-index:40; display:flex; align-items:center; gap:.6rem;
+             padding:.7rem 1rem; border-radius:999px; background:var(--accent-2); color:var(--on-accent); font-weight:700;
+             border:1px solid rgba(var(--tint),.45);
+             box-shadow:0 14px 36px rgba(var(--tint),.25);
+             transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
+    .wa-fab:hover{ transform:translateY(-2px); box-shadow:0 20px 44px rgba(var(--tint),.35); background:#f7a41b; }
+
+    @media (prefers-reduced-motion:reduce){
+      .thumb img,.lightbox-img,.lb-btn,.wa-fab,.hero-slide{ transition:none !important; }
+    }
+  </style>
+</head>
+
+<body class="paper selection:bg-amber-200/40">
+
+  <!-- Header (brand text on the left in Amber) -->
+  <header class="glass-dark sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded-lg">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="shrink-0">
+          <path d="M3 21l7-7M10 14l8-8 3 3-8 8" stroke="#e5e7eb" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="18" cy="6" r="1.2" fill="#e5e7eb"/>
+        </svg>
+        <span class="font-extrabold tracking-wide text-base md:text-lg" style="color:var(--accent-2)">OLIVER INK</span>
+      </a>
+
+      <nav class="hidden sm:flex items-center gap-8 text-sm">
+        <a href="#about" class="nav-link hover:text-white focus:outline-none rounded">About</a>
+        <a href="#portfolio" class="nav-link hover:text-white focus:outline-none rounded">Portfolio</a>
+        <a href="#book" class="nav-link hover:text-white focus:outline-none rounded">Book</a>
       </nav>
 
-      <div class="body">
-        <p>Welcome to <strong>PIZZA LONDON</strong></p>
-      </div>
       
-    </section>
 
-    <section id="about" id="about">
-      <h1>About</h1>
-      <div class="body">
-        <p>We started our Pizza Shop over 5years ago in heart of Bratislavian Underground Tunnel City 
-          The Food-Brain connection that we have developed over the time could not be replaced
-          Whole loads of tastebuds generated within the factory seek for a uniqueness and slice of bread.
-          Within next 3years we opened over 600 locations across the Europe, East Asia & Wakanda.
-          We'd love to spread our mission over the world and moon for 100 years more to come!
-        </br><span>Shaloup!</span>
+    </div>
+  </header>
+
+  <!-- HERO (rotating background, no dots, touch-swipe) -->
+  <section class="hero">
+    <!-- slides (use your own 5 full images) -->
+    <div class="hero-slides" id="heroSlides" aria-hidden="true">
+      <div class="hero-slide" style="background-image:url('full/Skull.jpeg')"></div>
+      <div class="hero-slide" style="background-image:url('full/Rose.jpeg')"></div>
+      <div class="hero-slide" style="background-image:url('full/Lion.jpg')"></div>
+      <div class="hero-slide" style="background-image:url('full/Underground.jpg')"></div>
+      <div class="hero-slide" style="background-image:url('full/IMG_1463.jpg')"></div>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-vignette"></div>
+
+    <div class="hero-content max-w-7xl mx-auto px-6 lg:px-10 py-24 sm:py-28 flex flex-col items-start">
+      <div class="max-w-2xl">
+        <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs tracking-wide uppercase btn-ghost-dark ring-1 ring-white/10">
+          Black &amp; Grey • Fine Line • Custom
+        </span>
+
+        <h1 class="mt-5 text-4xl sm:text-6xl font-black leading-tight">
+          Timeless work. Clean execution.
+        </h1>
+
+        <p class="mt-4 text-base sm:text-lg text-slate-200/90 max-w-lg">
+          Private London studio focused on precise linework, soft shading, and tattoos that heal beautifully.
         </p>
-      </div>
 
-      
-    </section>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="https://wa.me/+447737170791" target="_blank" rel="noopener"
+             class="inline-flex items-center gap-2 px-5 py-3 rounded-full btn-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60">
+            Book on WhatsApp
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M16.136 13.648l2.418 2.418c.196.196.196.51 0 .706-.196.196-.51.196-.707 0l-2.418-2.418c-.551.476-1.224.85-1.932 1.107-1.607.779-3.383.494-4.58-.577-1.198-1.071-1.666-2.755-1.27-4.295.404-1.26 1.276-2.168 2.45-2.558 1.557-.529 3.373-.238 4.39 1.062.623.665.884 1.61.626 2.48-.259.866-.853 1.51-1.678 1.734-.476.145-.961.24-1.46.23-.12.009-.225-.03-.341-.07-.613-.153-1.258-.257-1.903-.255z" fill="currentColor"/>
+            </svg>
+          </a>
 
-    <section id="menu" id="menu">
-      <h1>Menu</h1>
-      
-      <div class="body">
+          <a href="https://instagram.com/YOUR_USERNAME" target="_blank" rel="noopener"
+            class="inline-flex items-center gap-2 px-5 py-3 rounded-full btn-ghost-dark">
+            Follow on Instagram
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+              <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5a5.5 5.5 0 1 1 0 11a5.5 5.5 0 0 1 0-11zm0 2a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7zM18 6.5a1 1 0 1 1 0 2a1 1 0 0 1 0-2z"/>
+            </svg>
+          </a>
 
-        <table>
-          <tr>
-            <td>Number</td>
-            <td>Name</td>
-            <td>ingredients</td>
-            <td>medium</td>
-            <td>large</td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Caprisiossa</td>
-            <td>ser, szynka, pieczarki, oregano</td>
-            <td>E10</td>
-            <td>E15</td>
-          </tr>
-          <tr>
-              <td>Number</td>
-              <td>Name</td>
-              <td>ingredients</td>
-              <td>medium</td>
-              <td>large</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Caprisiossa</td>
-              <td>ser, szynka, pieczarki, oregano</td>
-              <td>E10</td>
-              <td>E15</td>
-            </tr>
-            <tr>
-                <td>Number</td>
-                <td>Name</td>
-                <td>ingredients</td>
-                <td>medium</td>
-                <td>large</td>
-              </tr>
-              <tr>
-                <td>1</td>
-                <td>Caprisiossa</td>
-                <td>ser, szynka, pieczarki, oregano</td>
-                <td>E10</td>
-                <td>E15</td>
-              </tr>
-              <tr>
-                  <td>Number</td>
-                  <td>Name</td>
-                  <td>ingredients</td>
-                  <td>medium</td>
-                  <td>large</td>
-                </tr>
-                <tr>
-                  <td>1</td>
-                  <td>Caprisiossa</td>
-                  <td>ser, szynka, pieczarki, oregano</td>
-                  <td>E10</td>
-                  <td>E15</td>
-                </tr>
-        </table>
-      </div>
-
-    </section>
-
-    <section id="contact-us">
-      <h1>Contact us</h1>
-
-      <div class="body">
-        <p>Feel free to get in touch using the following form:</p>
-
-        <form action="mailto:pizzeria@pizza-london.com">
-            <fieldset>
-              <label>Name</label>
-              <input type="text" name="name" />
-            </fieldset>
-
-            <fieldset>
-              <label>email</label>
-              <input type="email" name="email-address" />
-            </fieldset>
-
-            <fieldset>
-              <label>Message</label>
-              <textarea name="message"></textarea>
-            </fieldset>
-            <input type="submit" value="send" />
-          
-        </form>
-      </div>
-
-    </section>
-
-    <section id="find-us">
-        <h1>Find us</h1>
-        <div class="body">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2481.731229753462!2d-0.14276038451546233!3d51.53648931639724!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761b1ffbb3fdef%3A0x2deb7b89f933d6f7!2sWhite+Kitchen+Pizza!5e0!3m2!1sen!2suk!4v1563134727052!5m2!1sen!2suk" width="600" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
+          <a href="#portfolio" class="inline-flex items-center gap-2 px-5 py-3 rounded-full btn-ghost-dark">
+            View portfolio
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
-    </section>
 
-    <footer>
-      
-    </footer>
-  </bod>
+        <div class="mt-6 text-sm text-slate-300/85">
+          London • By appointment only
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="py-14 sm:py-18">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+      <div class="grid lg:grid-cols-[320px,1fr] gap-10 lg:gap-14 items-start">
+        <aside class="card p-5 flex flex-col items-center text-center">
+          <img src="profile.jpg" alt="Oliwier Rynkiewicz"
+               class="w-36 h-36 object-cover rounded-full ring-2 ring-[var(--line)] shadow-[0_10px_35px_rgba(0,0,0,.06)] mb-4" loading="lazy" decoding="async">
+          <h2 class="text-xl font-extrabold">Oliwier Rynkiewicz</h2>
+          <p class="text-sm" style="color:var(--muted)">Tattoo Artist • London</p>
+
+          <div class="mt-5 flex flex-wrap justify-center gap-2">
+            <span class="chip">Black &amp; Grey</span>
+            <span class="chip">Fine Line</span>
+            <span class="chip">Illustrative</span>
+          </div>
+
+          <a href="https://wa.me/+447737170791" target="_blank" rel="noopener"
+             class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full btn-accent font-semibold">
+            Book a consultation
+          </a>
+        </aside>
+
+        <article class="space-y-5">
+          <header>
+            <h2 class="text-2xl sm:text-3xl font-extrabold">About Me</h2>
+          </header>
+
+          <p style="color:var(--muted)" class="leading-relaxed">
+            I’m a tattoo artist with over a decade of experience, focusing on clean execution,
+            strong composition and healed longevity. My practice blends precise linework with
+            soft, controlled shading to create pieces that age gracefully on the skin.
+          </p>
+
+          <p style="color:var(--muted)" class="leading-relaxed">
+            Whether it’s a delicate fine-line micro piece or a bold black &amp; grey composition,
+            I work closely with clients to refine ideas into intentional designs. From placement and
+            scale to flow with anatomy, every decision is guided by how the tattoo will heal and live.
+          </p>
+
+          <div class="grid sm:grid-cols-3 gap-4">
+            <div class="card p-4">
+              <div class="text-sm" style="color:var(--muted)">Experience</div>
+              <div class="mt-1 text-xl font-bold">10+ years</div>
+            </div>
+            <div class="card p-4">
+              <div class="text-sm" style="color:var(--muted)">Focus</div>
+              <div class="mt-1 text-xl font-bold">Custom pieces</div>
+            </div>
+            <div class="card p-4">
+              <div class="text-sm" style="color:var(--muted)">Studio</div>
+              <div class="mt-1 text-xl font-bold">Private • London</div>
+            </div>
+          </div>
+
+          <blockquote class="card p-5 border-l-4" style="border-left-color:var(--accent-2)">
+            <p class="italic" style="color:var(--muted)">
+              “Good tattoos are designed for skin — not just screens. My goal is work that looks great now and even better after it heals.”
+            </p>
+          </blockquote>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials" class="py-14 sm:py-18">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl sm:text-3xl font-extrabold">Client Testimonials</h2>
+        <p class="mt-2" style="color:var(--muted)">Real words from people who’ve trusted me with their skin.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-5">
+        <figure class="card p-6 flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full" style="background:rgba(var(--tint),.18); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:700;">AK</div>
+            <figcaption>
+              <div class="font-semibold">Amelia K.</div>
+              <div class="text-sm" style="color:var(--muted)">Fine line wrist</div>
+            </figcaption>
+          </div>
+          <p style="color:var(--muted)">“So delicate and clean. Oli helped refine my idea and the result is exactly what I wanted. Healed beautifully.”</p>
+        </figure>
+
+        <figure class="card p-6 flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full" style="background:rgba(var(--tint),.18); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:700;">JS</div>
+            <figcaption>
+              <div class="font-semibold">Jordan S.</div>
+              <div class="text-sm" style="color:var(--muted)">Black &amp; grey forearm</div>
+            </figcaption>
+          </div>
+          <p style="color:var(--muted)">“Super professional and thoughtful with placement. The shading flows with my arm — couldn’t be happier.”</p>
+        </figure>
+
+        <figure class="card p-6 flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full" style="background:rgba(var(--tint),.18); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:700;">LC</div>
+            <figcaption>
+              <div class="font-semibold">Lena C.</div>
+              <div class="text-sm" style="color:var(--muted)">Micro piece</div>
+            </figcaption>
+          </div>
+          <p style="color:var(--muted)">“The linework is insanely clean. Oli explained aftercare clearly — it healed crisp with no blowout.”</p>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Portfolio -->
+  <section id="portfolio" class="py-12 sm:py-16">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-center mb-8">Portfolio</h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <button class="thumb aspect-square" data-full="full/Skull.jpeg" aria-label="Open image: Skull Tattoo">
+          <img class="lqip" src="thumbs/Skull.jpeg" data-src="thumbs/Skull.jpeg" alt="Skull Tattoo" loading="lazy" decoding="async"/>
+        </button>
+        <button class="thumb aspect-square" data-full="full/Rose.jpeg" aria-label="Open image: Rose Tattoo">
+          <img class="lqip" src="thumbs/Rose.jpeg" data-src="thumbs/Rose.jpeg" alt="Rose Tattoo" loading="lazy" decoding="async"/>
+        </button>
+        <button class="thumb aspect-square" data-full="full/Lion.jpg" aria-label="Open image: Lion Tattoo">
+          <img class="lqip" src="thumbs/Lion.jpg" data-src="thumbs/Lion.jpg" alt="Lion Tattoo" loading="lazy" decoding="async"/>
+        </button>
+        <!-- more -->
+        <button class="thumb aspect-square" data-full="full/Underground.jpg"><img class="lqip" src="thumbs/Underground.jpg" data-src="thumbs/Underground.jpg" alt="Underground scene"/></button>
+        <button class="thumb aspect-square" data-full="full/IMG_1463.jpg"><img class="lqip" src="thumbs/IMG_1463.jpg" data-src="thumbs/IMG_1463.jpg" alt="Floral composition"/></button>
+        <button class="thumb aspect-square" data-full="full/IMG_0818.jpg"><img class="lqip" src="thumbs/IMG_0818.jpg" data-src="thumbs/IMG_0818.jpg" alt="Black and grey sleeve segment"/></button>
+        <button class="thumb aspect-square" data-full="full/IMG_1097.jpg"><img class="lqip" src="thumbs/IMG_1097.jpg" data-src="thumbs/IMG_1097.jpg" alt="Micro-realism face"/></button>
+        <button class="thumb aspect-square" data-full="full/cat.jpg"><img class="lqip" src="thumbs/cat.jpg" data-src="thumbs/cat.jpg" alt="Cat linework"/></button>
+        <button class="thumb aspect-square" data-full="full/tatt1.jpg"><img class="lqip" src="thumbs/tatt1.jpg" data-src="thumbs/tatt1.jpg" alt="Script detail"/></button>
+        <button class="thumb aspect-square" data-full="full/circle.jpg"><img class="lqip" src="thumbs/circle.jpg" data-src="thumbs/circle.jpg" alt="Geometric circle"/></button>
+        <button class="thumb aspect-square" data-full="full/cowboot.jpg"><img class="lqip" src="thumbs/cowboot.jpg" data-src="thumbs/cowboot.jpg" alt="Cowboy boot linework"/></button>
+        <button class="thumb aspect-square" data-full="full/crown.jpg"><img class="lqip" src="thumbs/crown.jpg" data-src="thumbs/crown.jpg" alt="Crown fineline"/></button>
+        <button class="thumb aspect-square" data-full="full/Dino.jpg"><img class="lqip" src="thumbs/Dino.jpg" data-src="thumbs/Dino.jpg" alt="Dinosaur illustrative"/></button>
+        <button class="thumb aspect-square" data-full="full/flowersfine.jpg"><img class="lqip" src="thumbs/flowersfine.jpg" data-src="thumbs/flowersfine.jpg" alt="Delicate flowers"/></button>
+        <button class="thumb aspect-square" data-full="full/Moon.jpg"><img class="lqip" src="thumbs/Moon.jpg" data-src="thumbs/Moon.jpg" alt="Moon and stars"/></button>
+        <button class="thumb aspect-square" data-full="full/shrooms1.jpg"><img class="lqip" src="thumbs/shrooms1.jpg" data-src="thumbs/shrooms1.jpg" alt="Mushrooms linework"/></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Book -->
+  <section id="book" class="py-12 sm:py-16">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+      <div class="card p-7 md:p-9 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h3 class="text-xl sm:text-2xl font-extrabold">Ready to start?</h3>
+          <p class="mt-1" style="color:var(--muted)">Send your idea, placement &amp; size for a quick quote.</p>
+        </div>
+        <a href="https://wa.me/+447737170791" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 px-5 py-3 rounded-full btn-accent font-semibold">
+          Message on WhatsApp
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M16.136 13.648l2.418 2.418c.196.196.196.51 0 .706-.196.196-.51.196-.707 0l-2.418-2.418c-.551.476-1.224.85-1.932 1.107-1.607.779-3.383.494-4.58-.577-1.198-1.071-1.666-2.755-1.27-4.295.404-1.26 1.276-2.168 2.45-2.558 1.557-.529 3.373-.238 4.39 1.062.623.665.884 1.61.626 2.48-.259.866-.853 1.51-1.678 1.734-.476.145-.961.24-1.46.23-.12.009-.225-.03-.341-.07-.613-.153-1.258-.257-1.903-.255z" fill="currentColor"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t" style="border-color:var(--line)">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8 py-10 text-center" style="color:var(--muted)">
+      &copy; 2025 Oliwier Rynkiewicz. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- WhatsApp FAB -->
+  <a href="https://wa.me/+447737170791" target="_blank" rel="noopener" class="wa-fab" aria-label="WhatsApp booking">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M16.136 13.648l2.418 2.418c.196.196.196.51 0 .706-.196.196-.51.196-.707 0l-2.418-2.418c-.551.476-1.224.85-1.932 1.107-1.607.779-3.383.494-4.58-.577-1.198-1.071-1.666-2.755-1.27-4.295.404-1.26 1.276-2.168 2.45-2.558 1.557-.529 3.373-.238 4.39 1.062.623.665.884 1.61.626 2.48-.259.866-.853 1.51-1.678 1.734-.476.145-.961.24-1.46.23-.12.009-.225-.03-.341-.07-.613-.153-1.258-.257-1.903-.255z" fill="currentColor"/>
+    </svg>
+    Book
+  </a>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+    <button class="lb-btn lb-close" aria-label="Close">✕</button>
+    <button class="lb-btn lb-prev" aria-label="Previous">❮</button>
+    <div class="lightbox-img-wrap">
+      <img id="lightbox-img" class="lightbox-img lb-blur" src="" alt="Tattoo image"/>
+    </div>
+    <button class="lb-btn lb-next" aria-label="Next">❯</button>
+  </div>
+
+  <!-- Scripts: hero carousel (autoplay + swipe) + lazy thumbs + lightbox -->
+  <script>
+    // ===== HERO Rotating background (autoplay + swipe)
+    const slidesWrap = document.getElementById('heroSlides');
+    const slides = Array.from(slidesWrap.querySelectorAll('.hero-slide'));
+    let idx = 0, timer = null, interval = 5500;
+
+    function setActive(i){
+      idx = (i + slides.length) % slides.length;
+      slides.forEach((s, k) => s.classList.toggle('active', k === idx));
+    }
+    function next(){ setActive(idx + 1); }
+    function prev(){ setActive(idx - 1); }
+    function start(){ timer = setInterval(next, interval); }
+    function stop(){ if(timer) clearInterval(timer); timer = null; }
+
+    window.addEventListener('load', ()=>{
+      setActive(0); start();
+      const hero = document.querySelector('.hero');
+      hero.addEventListener('mouseenter', stop);
+      hero.addEventListener('mouseleave', start);
+      hero.addEventListener('focusin', stop);
+      hero.addEventListener('focusout', start);
+
+      // Touch swipe
+      let startX = 0, moved = 0, touching = false;
+      hero.addEventListener('touchstart', (e)=>{
+        if(e.touches.length !== 1) return;
+        touching = true; startX = e.touches[0].clientX; moved = 0; stop();
+      }, {passive:true});
+
+      hero.addEventListener('touchmove', (e)=>{
+        if(!touching) return;
+        moved = e.touches[0].clientX - startX;
+        // do not prevent default to allow vertical scroll; touch-action: pan-y handles it
+      }, {passive:true});
+
+      hero.addEventListener('touchend', ()=>{
+        if(!touching) return;
+        const THRESH = 50; // px
+        if(Math.abs(moved) > THRESH){
+          if(moved < 0) next(); else prev();
+        }
+        touching = false; start();
+      });
+    });
+
+    // ===== Lazy-load thumbnails
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          const img = entry.target;
+          const real = img.getAttribute('data-src');
+          if(real){
+            img.src = real;
+            img.onload = () => img.classList.add('loaded');
+            img.classList.remove('lqip');
+            img.removeAttribute('data-src');
+          }
+          io.unobserve(img);
+        }
+      });
+    }, { rootMargin: '200px' }) : null;
+
+    document.querySelectorAll('.thumb img').forEach(img=>{
+      if(io){ io.observe(img); }
+      else{
+        const real = img.getAttribute('data-src');
+        if(real){ img.src = real; img.onload = ()=>img.classList.add('loaded'); img.classList.remove('lqip'); }
+      }
+    });
+
+    // ===== Lightbox
+    const thumbs = Array.from(document.querySelectorAll('.thumb'));
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightbox-img');
+    const prevBtn = lb.querySelector('.lb-prev');
+    const nextBtn = lb.querySelector('.lb-next');
+    const closeBtn = lb.querySelector('.lb-close');
+    let currentIndex = 0;
+
+    function openLightbox(index){
+      currentIndex = index;
+      const { lq, full } = getSources(currentIndex);
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      lbImg.classList.add('lb-blur');
+      lbImg.src = lq;
+
+      const hi = new Image();
+      hi.src = full;
+      hi.onload = ()=>{
+        lbImg.src = full;
+        lbImg.classList.remove('lb-blur');
+      };
+    }
+    function getSources(i){
+      const el = thumbs[i];
+      const full = el.getAttribute('data-full');
+      const img = el.querySelector('img');
+      const lq = img?.currentSrc || img?.src || full;
+      return { lq, full };
+    }
+    function closeLightbox(){
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+      lbImg.src = '';
+    }
+    function showPrev(){ openLightbox( (currentIndex - 1 + thumbs.length) % thumbs.length ); }
+    function showNext(){ openLightbox( (currentIndex + 1) % thumbs.length ); }
+
+    thumbs.forEach((t, i)=>{
+      t.addEventListener('click', ()=> openLightbox(i));
+      t.addEventListener('keyup', (e)=>{ if(e.key === 'Enter' || e.key === ' ') openLightbox(i); });
+      t.setAttribute('tabindex', '0'); t.setAttribute('role', 'button');
+      if(!t.getAttribute('aria-label')) t.setAttribute('aria-label','Open image');
+    });
+
+    prevBtn.addEventListener('click', (e)=>{ e.stopPropagation(); showPrev(); });
+    nextBtn.addEventListener('click', (e)=>{ e.stopPropagation(); showNext(); });
+    closeBtn.addEventListener('click', (e)=>{ e.stopPropagation(); closeLightbox(); });
+    lb.addEventListener('click', (e)=>{ if(e.target === lb) closeLightbox(); });
+    document.addEventListener('keydown', (e)=>{
+      if(!lb.classList.contains('open')) return;
+      if(e.key === 'Escape') closeLightbox();
+      if(e.key === 'ArrowLeft') showPrev();
+      if(e.key === 'ArrowRight') showNext();
+    });
+
+  </script>
+
+  <script>
+  // --- Lightbox: scroll (mouse wheel / trackpad) to navigate ---
+  // Small cooldown so one scroll gesture = one photo
+  let wheelCooldown = false;
+
+  lb.addEventListener('wheel', (e) => {
+    if (!lb.classList.contains('open')) return;
+
+    // prevent the page from trying to scroll underneath
+    e.preventDefault();
+
+    if (wheelCooldown) return;
+
+    // Pick the dominant axis (useful for trackpads that send both)
+    const ax = Math.abs(e.deltaX);
+    const ay = Math.abs(e.deltaY);
+    const dominant = ax > ay ? e.deltaX : e.deltaY;
+
+    // Threshold to ignore micro-scrolls
+    if (Math.abs(dominant) < 30) return;
+
+    if (dominant > 0) showNext(); else showPrev();
+
+    wheelCooldown = true;
+    setTimeout(() => { wheelCooldown = false; }, 400); // debounce
+  }, { passive: false });
+
+  // --- Lightbox: touch swipe to navigate (phones/tablets) ---
+  let lbTouching = false;
+  let lbStartX = 0;
+  let lbMovedX = 0;
+
+  // Allow vertical scroll gestures to be ignored by us (we only care about X)
+  lb.style.touchAction = 'pan-y';
+
+  lb.addEventListener('touchstart', (e) => {
+    if (!lb.classList.contains('open')) return;
+    if (e.touches.length !== 1) return;
+    lbTouching = true;
+    lbStartX = e.touches[0].clientX;
+    lbMovedX = 0;
+  }, { passive: true });
+
+  lb.addEventListener('touchmove', (e) => {
+    if (!lbTouching) return;
+    lbMovedX = e.touches[0].clientX - lbStartX;
+    // We intentionally do not preventDefault to keep vertical scroll natural
+  }, { passive: true });
+
+  lb.addEventListener('touchend', () => {
+    if (!lbTouching) return;
+    const THRESH = 50; // px swipe threshold
+    if (Math.abs(lbMovedX) > THRESH) {
+      if (lbMovedX < 0) showNext(); else showPrev();
+    }
+    lbTouching = false;
+  });
+</script>
+
+</body>
 </html>
